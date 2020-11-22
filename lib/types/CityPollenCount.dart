@@ -3,10 +3,11 @@ import 'PollenReading.dart';
 class CityPollenCount {
   String cityName;
   String detail;
-  String overallRisk;
+  PollenReading overallRisk;
   List<PollenReading> pollenReadings;
 
-  CityPollenCount(String name, String overall, List<PollenReading> readings) {
+  CityPollenCount(
+      String name, PollenReading overall, List<PollenReading> readings) {
     this.cityName = name;
     this.pollenReadings = readings;
     this.overallRisk = overall;
