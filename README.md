@@ -1,3 +1,3 @@
 # pollen_track
 
-City based app to view pollen counts across pollen types
+View pollen counts across cities and pollen types
