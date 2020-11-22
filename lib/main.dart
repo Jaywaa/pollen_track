@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pollen_track/services/http/PollenCountHttpService.dart';
+import 'package:pollen_track/services/parsers/PollenCountParser.dart';
+import 'package:pollen_track/types/CityPollenCount.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,46 +29,48 @@ class CityListWidget extends StatefulWidget {
 }
 
 class _CityListWidgetState extends State<CityListWidget> {
-  final _cities = ["Cape Town", "Johannesburg", "Bloemfontein", "Durban", "Pretoria", "Port Elizabeth", "Kimberly"];
-  final _pollenTypes = ["Tree", "Grass", "Weed", "Mould"];
-  final _pollenAmounts = [
-    new PollenReading("Very Low", "No action required. Pollen levels pose no risk to allergy sufferers.", Colors.green),
-    new PollenReading("Low", "< 20% of pollen allergy sufferers will experience symptoms. Known seasonal allergy sufferers should commence preventative therapies e.g. nasal steroid sprays.", Colors.yellow),
-    new PollenReading("Moderate", "> 50% of pollen allergy sufferers will experience symptoms. Need for increased use of acute treatments e.g. non-sedating antihistamines.", Colors.orange),
-    new PollenReading("High", "> 90% of pollen allergy sufferers will experience symptoms. Very allergic patients and asthmatics should limit outdoor activities and keep indoor areas free from wind exposure. Check section on pollen and day-to-day weather changes for planning activities.", Colors.deepOrange),
-    new PollenReading("Very High", "These levels are potentially very dangerous for pollen allergy sufferers, especially asthmatics. Outdoor activities should be avoided.", Colors.red),
-    new PollenReading("No data", "There is currently no data available for this period.", Colors.blueGrey)
-  ];
-  final _biggerFont = TextStyle(fontSize: 18.0);
-
   Widget _buildCities() {
-    return ReorderableListView(children: _cities.map(_buildRow).toList(),
-      onReorder: (oldIndex, newIndex) {
-        print("$oldIndex, $newIndex");
-      }
-      // padding: EdgeInsets.all(16.0), 
-      // itemBuilder: (context, i) {
-      //   print('test $i');
+    return FutureBuilder<List<CityPollenCount>>(
+      future: _getPollenCounts(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          print('Loading...');
+          return Center(child: CircularProgressIndicator());
+        }
 
-      //   // if (i.isOdd) return Divider();
-      //   // final index = i ~/ 2;
-      //   return _buildRow(_cities[i]);
-      // },
-      // itemCount: _cities.length);
+        print('Data loaded');
+        snapshot.data.map((e) => print(e.cityName));
+        return ReorderableListView(
+          children: snapshot.data.map(_buildRow).toList(), 
+          onReorder: (oldIndex, newIndex) {
+            print('old: $oldIndex, new: $newIndex');
+        });
+      }
     );
   }
 
-  Widget _buildRow(String city) {
+  Widget _buildRow(CityPollenCount city) {
     return ExpansionTile(
-      key: Key(city),
+      key: Key(city.cityName),
       initiallyExpanded: false,
-      title: Text(city),
-      children: _pollenTypes.map((e) => ListTile(title: Text(e), leading: Icon(Icons.circle, color: Colors.grey), trailing: Text("No data"),)).toList()
+      title: Text(city.cityName),
+      children: city.pollenReadings.map((reading) => ListTile(title: Text(reading.type), leading: Icon(Icons.circle, color: reading.pollenLevel.color), trailing: Text(reading.pollenLevel.name),)).toList()
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    print('Building cities.');
+    _getPollenCounts();
+
     return _buildCities();
+  }
+
+  Future<List<CityPollenCount>> _getPollenCounts() async {
+    print('Fetching pollen HTML.');
+    var html = await PollenCountHttpService.getPollenCountHtml();
+    
+    print('Parsing pollen HTML.');
+    return (await PollenCountHTMLParser().parseCityPollenCounts(html)).toList();
   }
 }
