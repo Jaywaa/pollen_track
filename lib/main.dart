@@ -10,9 +10,7 @@ class PollenTrack extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.deepOrange),
       title: 'Pollen Track',
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Pollen Track'),
-        ),
+        appBar: AppBar(title: Text('Pollen Track')),
         body: Center(
           child: CityListWidget(),
         ),

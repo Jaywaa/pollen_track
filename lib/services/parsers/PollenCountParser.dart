@@ -4,7 +4,8 @@ import 'package:pollen_track/types/PollenLevel.dart';
 import 'package:pollen_track/types/PollenReading.dart';
 
 class PollenCountHTMLParser {
-  Future<Iterable<CityPollenCount>> parseCityPollenCounts(String html) async {
+  static Future<Iterable<CityPollenCount>> parseCityPollenCounts(
+      String html) async {
     var document = parse(html);
 
     // Extract the city rows from the table. [row, ...]
@@ -23,7 +24,7 @@ class PollenCountHTMLParser {
     return pollenNodes.map(_buildCityPollenCount);
   }
 
-  CityPollenCount _buildCityPollenCount(Iterable<String> row) {
+  static CityPollenCount _buildCityPollenCount(Iterable<String> row) {
     var rowList = row.toList();
     var pollenLevel = {
       "green": PollenLevel.VeryLow,

@@ -7,5 +7,5 @@ Future<List<CityPollenCount>> fetchPollenCounts() async {
   var html = await PollenCountHttpService.getPollenCountHtml();
 
   print('Parsing pollen HTML.');
-  return (await PollenCountHTMLParser().parseCityPollenCounts(html)).toList();
+  return (await PollenCountHTMLParser.parseCityPollenCounts(html)).toList();
 }
