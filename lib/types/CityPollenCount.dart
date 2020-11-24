@@ -6,12 +6,7 @@ class CityPollenCount {
   PollenReading overallRisk;
   List<PollenReading> pollenReadings;
 
-  CityPollenCount(
-      String name, PollenReading overall, List<PollenReading> readings) {
-    this.cityName = name;
-    this.pollenReadings = readings;
-    this.overallRisk = overall;
-  }
+  CityPollenCount(this.cityName, this.overallRisk, this.pollenReadings);
 
   // addReading()
 
