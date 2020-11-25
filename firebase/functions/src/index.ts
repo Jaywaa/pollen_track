@@ -1,10 +1,10 @@
-import { https, logger, pubsub } from 'firebase-functions';
+import { https, logger } from 'firebase-functions';
 import { fetchPollenHtml } from './http/fetch-pollen-html';
 import { parsePollenHtml } from './parsers/parse-pollen-html';
 
-export const scheduledFunc = pubsub.schedule('* * * * *').onRun((context) => {
-  logger.log('HELLO ITS ME THE SCHEDULED BOI');
-});
+// export const scheduledFunc = pubsub.schedule('* * * * *').onRun((context) => {
+//   logger.log('HELLO ITS ME THE SCHEDULED BOI');
+// });
 
 export const savePollenReport = https.onRequest(async (request, response) => {
   const start = new Date().getTime();

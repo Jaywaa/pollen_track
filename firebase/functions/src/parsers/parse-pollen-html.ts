@@ -7,7 +7,7 @@ const pollenLevelMap: { [K: string]: string } = {
     'yellow': 'low',
     'lightorange': 'moderate',
     'darkorange': 'high',
-    'red': 'very_high'
+    'red': 'very_high',
 };
 
 function parseReportDate(selector: cheerio.Selector): Date {
@@ -33,7 +33,7 @@ export async function parsePollenHtml(html: string): Promise<{ reportDate: Date,
     const reportDate = parseReportDate(selector);
 
     logger.info('Report date:', reportDate.toISOString());
-    
+
     // Extract the city rows from the table. [row, ...]
     const cityRows =
         selector('#wpv-view-layout-300 > div > div > div')
@@ -75,6 +75,6 @@ export async function parsePollenHtml(html: string): Promise<{ reportDate: Date,
 
     return {
         reportDate,
-        cityPollenLevels
+        cityPollenLevels,
     };
 }
