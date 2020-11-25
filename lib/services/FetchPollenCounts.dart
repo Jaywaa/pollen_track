@@ -17,22 +17,15 @@ Future<Iterable<CityPollenCount>> fetchMostRecentPollenCounts() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final cities = await firestore.collection('cities').get();
+  final cities2 = await firestore.collectionGroup('cities').get();
 
-  print('CITIES! ${cities.docs.length}');
+  print('CITIES! ${cities.docs.length} ${cities.docs.map((d) => d.reference)}');
+  print(
+      'CITIES 2! ${cities2.docs.length} ${cities2.docs.map((e) => e.reference)}');
 
-  cities.docs.forEach((city) async {
-    final report = await firestore
-        .collection('cities')
-        .doc(city.id)
-        .collection('reports')
-        .doc('latest')
-        .get();
+  final reports = await firestore.collection('reports').get();
 
-    final cityData = city.data();
-    final reportData = report.data();
-    print('city: $cityData');
-    print('report: $reportData');
-  });
+  print('REPORT ${reports.docs.length} ${reports.docs.map((e) => e.data())}');
 }
 
 CityPollenCount _mapToCityPollenCount(dynamic cityReport) {}

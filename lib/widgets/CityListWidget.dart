@@ -14,7 +14,6 @@ class _CityListWidgetState extends State<CityListWidget> {
         future: fetchPollenCounts(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            print('Loading...');
             return Center(child: CircularProgressIndicator());
           }
 
@@ -33,7 +32,7 @@ class _CityListWidgetState extends State<CityListWidget> {
         key: Key(city.cityName),
         initiallyExpanded: false,
         title: Text(city.cityName),
-        trailing: Icon(Icons.circle, color: city.overallRisk.pollenLevel.color),
+        // trailing: (Icon(Icons.circle, color: city.overallRisk.pollenLevel.color)),
         children: city.pollenReadings
             .map((reading) => ListTile(
                   title: Text(reading.type),

@@ -25,6 +25,7 @@ dependencies:
   html: ^0.14.0+4
   firebase_core: "^0.5.2"
   cloud_firestore: "^0.14.3"
+  cloud_functions: "^0.7.1"
   flutter:
     sdk: flutter
 
