@@ -12,7 +12,7 @@ const pollenLevelMap: { [K: string]: string } = {
 
 function parseReportDate(selector: cheerio.Selector): Date {
     const reportDateText = selector('.col-sm-12 > h3').html();
-    const reportDateMatch = reportDateText?.match('Report Date:\s([A-Za-z0-9 ]+)');
+    const reportDateMatch = reportDateText?.match(/Report Date:\s([A-Za-z0-9 ]+)/);
 
     if (!reportDateMatch) {
         throw new Error(`Failed to parse report date. HTML: ${reportDateText}`);
