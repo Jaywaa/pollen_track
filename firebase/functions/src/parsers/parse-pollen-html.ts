@@ -1,5 +1,6 @@
 import { logger } from 'firebase-functions';
 import { load } from 'cheerio';
+import { City, CityPollenLevel, RiskLevel } from '../domain/types';
 
 const pollenLevelMap: { [K: string]: string } = {
     'grey': 'no_data',
@@ -21,10 +22,10 @@ function parseReportDate(selector: cheerio.Selector): Date {
     // "DD Month YYYY"
     const dateString = reportDateMatch[1].trim();
 
-    return new Date(`${dateString}Z`);
+    return new Date(`${dateString} GMT+2`);
 }
 
-export async function parsePollenHtml(html: string): Promise<{ reportDate: Date, cityPollenLevels: string[][] }> {
+export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> {
     logger.info('Parsing pollen HTML');
 
     const selector = load(html);
@@ -39,9 +40,9 @@ export async function parsePollenHtml(html: string): Promise<{ reportDate: Date,
         selector('#wpv-view-layout-300 > div > div > div')
             .toArray()
             .slice(2);
-
+            
     // Pulls out the city and pollen classnames for each city. [[city, overall, tree, grass, weed, mould], ...]
-    const cityPollenLevels = cityRows.map(rowElement => {
+    const cityPollenLevelsArray = cityRows.map(rowElement => {
         const row = selector(rowElement);
         const nodes = row.find('.col-xs-2 > *').toArray();
 
@@ -51,7 +52,7 @@ export async function parsePollenHtml(html: string): Promise<{ reportDate: Date,
 
             // city name
             if (outerHtml.includes('h5')) {
-                const city = column.html();
+                const city = column.html()?.toLowerCase();
 
                 if (!city) {
                     logger.warn('No city found in <h5> tag.');
@@ -73,8 +74,23 @@ export async function parsePollenHtml(html: string): Promise<{ reportDate: Date,
         });
     });
 
-    return {
-        reportDate,
-        cityPollenLevels,
-    };
+    const cityPollenLevels = mapArrayToType(reportDate, cityPollenLevelsArray);
+
+    return cityPollenLevels;
+}
+
+// [[city, overall, tree, grass, weed, mould], ...]
+function mapArrayToType(reportDate: Date, cityPollenLevels: string[][]): CityPollenLevel[] {
+    return cityPollenLevels.map(cityPollenLevel => (
+        {
+            cityName: cityPollenLevel[0] as City,
+            reportDate,
+            description: '',
+            overallRisk: cityPollenLevel[1] as RiskLevel,
+            treePollen: cityPollenLevel[2] as RiskLevel,
+            grassPollen: cityPollenLevel[3] as RiskLevel,
+            weedPollen: cityPollenLevel[4] as RiskLevel,
+            mouldSpores: cityPollenLevel[5] as RiskLevel,
+        })
+    );
 }
