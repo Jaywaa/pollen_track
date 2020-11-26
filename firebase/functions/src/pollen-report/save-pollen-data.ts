@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase-admin';
+import { firestore } from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { CityPollenLevel } from './domain/types';
 
@@ -8,10 +8,7 @@ export async function savePollenData(cityPollenLevels: CityPollenLevel[]) {
 }
 
 async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
-    // get firestore ready
-    const app = initializeApp();
-
-    const query = await app.firestore().collection('reports')
+    const query = await firestore().collection('reports')
         .where('reportDate', '==', cityPollenLevel.reportDate)
         .where('cityName', '==', cityPollenLevel.cityName)
         .get();
@@ -22,6 +19,14 @@ async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
     }
 
     logger.log(`No report found for ${cityPollenLevel.cityName} for ${cityPollenLevel.reportDate}`);
-    await app.firestore().collection('reports')
+
+    const reportDoc = await firestore().collection('reports')
         .add(cityPollenLevel);
+
+    await firestore().collection('cities')
+        .doc(cityPollenLevel.cityName)
+        .set({
+            latest_report_date: cityPollenLevel.reportDate,
+            latest_report: (await reportDoc.get()).ref,
+        });
 }
