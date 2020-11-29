@@ -52,7 +52,7 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
 
             // city name
             if (outerHtml.includes('h5')) {
-                const city = column.html()?.toLowerCase();
+                const city = column.html();
 
                 if (!city) {
                     logger.warn('No city found in <h5> tag.');

@@ -8,25 +8,31 @@ export async function savePollenData(cityPollenLevels: CityPollenLevel[]) {
 }
 
 async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
+
+    const cityTitle = cityPollenLevel.cityName;
+    const cityName = cityPollenLevel.cityName.toLowerCase();
+
     const query = await firestore().collection('reports')
         .where('reportDate', '==', cityPollenLevel.reportDate)
-        .where('cityName', '==', cityPollenLevel.cityName)
+        .where('cityName', '==', cityName)
         .get();
 
     if (!query.empty) {
-        logger.log(`Found existing report for ${cityPollenLevel.cityName} for ${cityPollenLevel.reportDate}`);
+        logger.log(`Found existing report for ${cityName} for ${cityPollenLevel.reportDate}`);
         return;        
     }
 
-    logger.log(`No report found for ${cityPollenLevel.cityName} for ${cityPollenLevel.reportDate}`);
+    logger.log(`Adding report for ${cityName} for ${cityPollenLevel.reportDate}`);
 
-    const reportDoc = await firestore().collection('reports')
-        .add(cityPollenLevel);
+    const reportDoc = await firestore()
+        .collection('reports')
+        .add({ ...cityPollenLevel, cityId: cityName });
 
     await firestore().collection('cities')
-        .doc(cityPollenLevel.cityName)
+        .doc(cityName)
         .set({
-            latest_report_date: cityPollenLevel.reportDate,
-            latest_report: (await reportDoc.get()).ref,
+            cityName: cityTitle,
+            latestReportDate: cityPollenLevel.reportDate,
+            latestReport: (await reportDoc.get()).ref,
         });
 }

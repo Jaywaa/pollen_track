@@ -22,4 +22,14 @@ class PollenLevel {
   final Color color;
 
   const PollenLevel(this.name, this.color, this.description);
+
+  static PollenLevel fromString(String pollenLevel) {
+    return {
+      'very_low': VeryLow,
+      'low': Low,
+      'moderate': Moderate,
+      'high': High,
+      'very_high': VeryHigh
+    }[pollenLevel];
+  }
 }

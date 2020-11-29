@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:pollen_track/services/FetchPollenCounts.dart';
 import 'widgets/CityListWidget.dart';
 
 void main() => runApp(PollenTrack());
@@ -19,8 +18,7 @@ class PollenTrack extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Text("Failed to initialize. ${snapshot.error}");
           }
-          print('Initialized.');
-          fetchMostRecentPollenCounts();
+          print('[Initialized]');
 
           return MaterialApp(
             theme: ThemeData(primarySwatch: Colors.deepOrange),

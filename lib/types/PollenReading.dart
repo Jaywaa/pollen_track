@@ -5,7 +5,7 @@ class PollenReading {
   PollenLevel pollenLevel;
 
   PollenReading(String type, PollenLevel level) {
-    this.type=type;
+    this.type = type;
     this.pollenLevel = level;
   }
 }

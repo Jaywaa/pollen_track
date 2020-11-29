@@ -11,7 +11,7 @@ class CityListWidget extends StatefulWidget {
 class _CityListWidgetState extends State<CityListWidget> {
   Widget _buildCities() {
     return FutureBuilder<List<CityPollenCount>>(
-        future: fetchPollenCounts(),
+        future: fetchRecentPollenCountsForAllCities(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
