@@ -28,18 +28,30 @@ class _CityListWidgetState extends State<CityListWidget> {
   }
 
   Widget _buildRow(CityPollenCount city) {
-    return ExpansionTile(
-        key: Key(city.cityName),
-        initiallyExpanded: false,
-        title: Text(city.cityName),
-        // trailing: (Icon(Icons.circle, color: city.overallRisk.pollenLevel.color)),
-        children: city.pollenReadings
+    return Card(
+      key: Key(city.cityName),
+      child: Column(children: [
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Title(
+            color: Colors.black,
+            child: Text(
+              city.cityName,
+              textScaleFactor: 2,
+            ),
+            title: city.cityName,
+          ),
+        ),
+        ...city.pollenReadings
             .map((reading) => ListTile(
                   title: Text(reading.type),
                   leading: Icon(Icons.circle, color: reading.pollenLevel.color),
                   trailing: Text(reading.pollenLevel.name),
                 ))
-            .toList());
+            .toList()
+      ]),
+    );
+    // trailing: (Icon(Icons.circle, color: city.overallRisk.pollenLevel.color)),
   }
 
   @override

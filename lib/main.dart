@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pollen_track/widgets/NavDrawer.dart';
 import 'widgets/CityListWidget.dart';
 
 void main() => runApp(PollenTrack());
@@ -24,6 +25,7 @@ class PollenTrack extends StatelessWidget {
             theme: ThemeData(primarySwatch: Colors.deepOrange),
             title: 'Pollen Track',
             home: Scaffold(
+              drawer: NavDrawer(),
               appBar: AppBar(
                 title: Text('Pollen Track'),
               ),
