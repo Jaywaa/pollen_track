@@ -1,16 +1,16 @@
-import { https, logger, pubsub } from 'firebase-functions';
+import { logger, region } from 'firebase-functions';
 import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
 
 const everyFridayAt12pm = '0 12 * * *';
 
-export const scheduledPollenReport = pubsub.schedule(everyFridayAt12pm).onRun(async (context) => {
+export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt12pm).onRun(async (context) => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
   
   await processPollenReport();
 });
 
-export const httpPollenReport = https.onRequest(async (request, response) => {
+export const httpPollenReport = region('europe-west1').https.onRequest(async (request, response) => {
   const authorized = isAuthorized(request);
 
   if (!authorized) {

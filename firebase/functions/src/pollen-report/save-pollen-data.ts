@@ -2,12 +2,14 @@ import { firestore } from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { CityPollenLevel } from './domain/types';
 
-export async function savePollenData(cityPollenLevels: CityPollenLevel[]) {
+export async function savePollenData(cityPollenLevels: CityPollenLevel[]): Promise<boolean> {
     logger.log('Saving pollen data.');
-    return cityPollenLevels.forEach(addIfNotExists);
+    return cityPollenLevels
+        .map(addIfNotExists)
+        .some(async x => await x === true);
 }
 
-async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
+async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<boolean> {
 
     const cityTitle = cityPollenLevel.cityName;
     const cityName = cityPollenLevel.cityName.toLowerCase();
@@ -19,7 +21,7 @@ async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
 
     if (!query.empty) {
         logger.log(`Found existing report for ${cityName} for ${cityPollenLevel.reportDate}`);
-        return;        
+        return false;        
     }
 
     logger.log(`Adding report for ${cityName} for ${cityPollenLevel.reportDate}`);
@@ -35,4 +37,6 @@ async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<void> {
             latestReportDate: cityPollenLevel.reportDate,
             latestReport: (await reportDoc.get()).ref,
         });
+    
+    return true;
 }

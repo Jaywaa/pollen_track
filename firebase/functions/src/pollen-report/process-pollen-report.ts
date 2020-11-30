@@ -1,11 +1,17 @@
 import { initializeApp } from "firebase-admin";
 import { logger } from "firebase-functions";
 import sendNotification from "../notification/send-notification";
+import { CityPollenLevel } from "./domain/types";
 import { fetchPollenHtml } from "./http/fetch-pollen-html";
 import { parsePollenHtml } from "./parsers/parse-pollen-html";
 import { savePollenData } from "./save-pollen-data";
 
-export default async function processPollenReport() {
+type PollenReportResult = {
+    isNewReport: boolean,
+    pollenData: CityPollenLevel[]
+}
+
+export default async function processPollenReport(): Promise<PollenReportResult> {
     const start = new Date().getTime();
 
     // get firebase ready
@@ -14,11 +20,14 @@ export default async function processPollenReport() {
     const html = await fetchPollenHtml();
     const pollenData = await parsePollenHtml(html);
 
-    await savePollenData(pollenData);
+    const isNewReport = await savePollenData(pollenData);
 
-    await sendNotification();
+    await sendNotification(isNewReport ? 'New report data saved.' : 'No new report data.');
 
     logger.info(`[END] ${new Date().getTime() - start}ms`);
 
-    return pollenData;
+    return {
+        isNewReport,
+        pollenData,
+    };
 }
