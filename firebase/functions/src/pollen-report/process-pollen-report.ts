@@ -1,4 +1,3 @@
-import { initializeApp } from "firebase-admin";
 import { logger } from "firebase-functions";
 import sendNotification from "../notification/send-notification";
 import { CityPollenLevel } from "./domain/types";
@@ -13,9 +12,6 @@ type PollenReportResult = {
 
 export default async function processPollenReport(): Promise<PollenReportResult> {
     const start = new Date().getTime();
-
-    // get firebase ready
-    initializeApp();
 
     const html = await fetchPollenHtml();
     const pollenData = await parsePollenHtml(html);

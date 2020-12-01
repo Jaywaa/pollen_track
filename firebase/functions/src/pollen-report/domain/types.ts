@@ -17,7 +17,7 @@ export type City
 
 export type CityPollenLevel = {
     cityName: City,
-    reportDate: Date,
+    reportDate: string, // DD/MM/YYYY
     description: string,
     overallRisk: RiskLevel,
     treePollen: RiskLevel,

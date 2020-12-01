@@ -1,8 +1,12 @@
 import { logger, region } from 'firebase-functions';
 import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
+import { initializeApp } from "firebase-admin";
 
 const everyFridayAt12pm = '0 12 * * *';
+
+// get firebase ready
+initializeApp();
 
 export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt12pm).onRun(async (context) => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);

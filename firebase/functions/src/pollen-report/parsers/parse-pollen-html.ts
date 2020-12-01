@@ -11,7 +11,7 @@ const pollenLevelMap: { [K: string]: string } = {
     'red': 'very_high',
 };
 
-function parseReportDate(selector: cheerio.Selector): Date {
+function parseReportDate(selector: cheerio.Selector): string {
     const reportDateText = selector('.col-sm-12 > h3').html();
     const reportDateMatch = reportDateText?.match(/Report Date:\s([A-Za-z0-9 ]+)/);
 
@@ -19,10 +19,11 @@ function parseReportDate(selector: cheerio.Selector): Date {
         throw new Error(`Failed to parse report date. HTML: ${reportDateText}`);
     }
 
-    // "DD Month YYYY"
+    // DD Month YYYY
     const dateString = reportDateMatch[1].trim();
 
-    return new Date(`${dateString} GMT+2`);
+    // DD/MM/YYYY
+    return new Date(dateString).toISOString().split('T')[0];
 }
 
 export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> {
@@ -33,7 +34,7 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
     // const report date
     const reportDate = parseReportDate(selector);
 
-    logger.info('Report date:', reportDate.toISOString());
+    logger.info('Report date:', reportDate);
 
     // Extract the city rows from the table. [row, ...]
     const cityRows =
@@ -80,7 +81,7 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
 }
 
 // [[city, overall, tree, grass, weed, mould], ...]
-function mapArrayToType(reportDate: Date, cityPollenLevels: string[][]): CityPollenLevel[] {
+function mapArrayToType(reportDate: string, cityPollenLevels: string[][]): CityPollenLevel[] {
     return cityPollenLevels.map(cityPollenLevel => (
         {
             cityName: cityPollenLevel[0] as City,

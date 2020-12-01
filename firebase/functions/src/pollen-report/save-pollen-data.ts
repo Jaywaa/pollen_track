@@ -4,36 +4,46 @@ import { CityPollenLevel } from './domain/types';
 
 export async function savePollenData(cityPollenLevels: CityPollenLevel[]): Promise<boolean> {
     logger.log('Saving pollen data.');
-    return cityPollenLevels
-        .map(addIfNotExists)
-        .some(async x => await x === true);
+
+    const mappings = await Promise.all(cityPollenLevels.map(addIfNotExists));
+
+    return mappings.some(x => x === true);
 }
 
 async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<boolean> {
 
-    const cityTitle = cityPollenLevel.cityName;
-    const cityName = cityPollenLevel.cityName.toLowerCase();
+    const cityName = cityPollenLevel.cityName;
+    const cityId = cityPollenLevel.cityName.toLowerCase().replace(/\s/g, '');
 
     const query = await firestore().collection('reports')
         .where('reportDate', '==', cityPollenLevel.reportDate)
-        .where('cityName', '==', cityName)
+        .where('cityId', '==', cityId)
         .get();
 
     if (!query.empty) {
-        logger.log(`Found existing report for ${cityName} for ${cityPollenLevel.reportDate}`);
+        logger.log(`Found existing report for ${cityId} for ${cityPollenLevel.reportDate}`);
         return false;        
     }
 
-    logger.log(`Adding report for ${cityName} for ${cityPollenLevel.reportDate}`);
+    logger.log(`Adding report for ${cityId} for ${cityPollenLevel.reportDate}`);
 
     const reportDoc = await firestore()
         .collection('reports')
-        .add({ ...cityPollenLevel, cityId: cityName });
+        .add({ 
+            cityId: cityId,
+            reportDate: cityPollenLevel.reportDate,
+            description: cityPollenLevel.description,
+            overallRisk: cityPollenLevel.overallRisk,
+            treePollen: cityPollenLevel.treePollen,
+            grassPollen: cityPollenLevel.grassPollen,
+            weedPollen: cityPollenLevel.weedPollen,
+            mouldSpores: cityPollenLevel.mouldSpores,
+        });
 
     await firestore().collection('cities')
-        .doc(cityName)
+        .doc(cityId)
         .set({
-            cityName: cityTitle,
+            cityName: cityName,
             latestReportDate: cityPollenLevel.reportDate,
             latestReport: (await reportDoc.get()).ref,
         });
