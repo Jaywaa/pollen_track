@@ -1,14 +1,16 @@
-import { logger, region } from 'firebase-functions';
+import { logger, region, firestore } from 'firebase-functions';
 import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
-import { initializeApp } from "firebase-admin";
+import * as admin from "firebase-admin";
 
-const everyFridayAt12pm = '0 12 * * *';
+const everyFridayAt9amCAT = '0 0 * * *';
 
 // get firebase ready
-initializeApp();
+admin.initializeApp();
 
-export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt12pm).onRun(async (context) => {
+const messaging = admin.messaging();
+
+export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt9amCAT).onRun(async (context) => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
   
   await processPollenReport();
@@ -28,4 +30,27 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
   const pollenData = await processPollenReport();
 
   response.send(pollenData);
+});
+
+export const reportNotification = firestore.document('cities/{cityId}').onUpdate(async snapshot => {
+  const cityId = snapshot.after.id;
+
+  const cityMessagePayload: admin.messaging.MessagingPayload = {
+    notification: {
+      title: 'New Pollen Readings',
+      body: `There's a new pollen report for ${snapshot.after.get('cityName')}!`
+    }
+  }
+
+  const multipleMessagePayload: admin.messaging.MessagingPayload = {
+    notification: {
+      title: 'New Pollen Readings',
+      body: `There's a new pollen report for your cities!`
+    }
+  }
+
+  const oneWeek = 604800;
+
+  messaging.sendToTopic(cityId, cityMessagePayload, { timeToLive: oneWeek } );
+  messaging.sendToTopic('multiple-cities', multipleMessagePayload, { timeToLive: oneWeek } );
 });
