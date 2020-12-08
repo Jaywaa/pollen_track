@@ -3,14 +3,16 @@ import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
 import * as admin from "firebase-admin";
 
-const everyFridayAt9amCAT = '0 0 * * *';
+const everyFridayAt9amCAT = '0 8 * * *';
 
 // get firebase ready
 admin.initializeApp();
 
 const messaging = admin.messaging();
 
-export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt9amCAT).onRun(async (context) => {
+export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt9amCAT)
+  .timeZone('Africa/Johannesburg')
+  .onRun(async (context) => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
   
   await processPollenReport();
