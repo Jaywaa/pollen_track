@@ -3,15 +3,15 @@ import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
 import * as admin from "firebase-admin";
 
-const everyFridayAt9amCAT = '0 8 * * *';
+const everyFridayAt8amCAT = '0 6 * * *';
 
 // get firebase ready
 admin.initializeApp();
 
 const messaging = admin.messaging();
 
-export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt9amCAT)
-  .timeZone('Africa/Johannesburg')
+export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt8amCAT)
+  .timeZone('UTC')
   .onRun(async (context) => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
   
