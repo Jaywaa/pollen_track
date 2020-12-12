@@ -3,16 +3,17 @@ import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
 import * as admin from "firebase-admin";
 
-const everyFridayAt8amCAT = '0 6 * * *';
+const everyFridayAt9amCAT = '0 8 * * *';
 
 // get firebase ready
 admin.initializeApp();
 
 const messaging = admin.messaging();
 
-export const scheduledPollenReport = region('europe-west1').pubsub.schedule(everyFridayAt8amCAT)
+export const scheduledPollenReport = region('europe-west1')
+  .pubsub.schedule(everyFridayAt9amCAT)
   .timeZone('UTC')
-  .onRun(async (context) => {
+  .onRun(async _ => {
   logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
   
   await processPollenReport();
@@ -36,6 +37,8 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
 
 export const reportNotification = firestore.document('cities/{cityId}').onUpdate(async snapshot => {
   const cityId = snapshot.after.id;
+
+  logger.log(`[Executing Report Notification] - ${new Date().toISOString()}`);
 
   const cityMessagePayload: admin.messaging.MessagingPayload = {
     notification: {
