@@ -35,7 +35,7 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
   response.send(pollenData);
 });
 
-export const reportNotification = firestore.document('cities/{cityId}').onUpdate(async snapshot => {
+export const reportNotification = region('europe-west1').firestore.document('cities/{cityId}').onUpdate(async snapshot => {
   const cityId = snapshot.after.id;
 
   logger.log(`[Executing Report Notification] - ${new Date().toISOString()}`);
@@ -43,19 +43,19 @@ export const reportNotification = firestore.document('cities/{cityId}').onUpdate
   const cityMessagePayload: admin.messaging.MessagingPayload = {
     notification: {
       title: 'New Pollen Readings',
-      body: `There's a new pollen report for ${snapshot.after.get('cityName')}!`
-    }
+      body: `There's a new pollen report for ${snapshot.after.get('cityName')}`,
+    },
   }
 
   const multipleMessagePayload: admin.messaging.MessagingPayload = {
     notification: {
       title: 'New Pollen Readings',
-      body: `There's a new pollen report for your cities!`
-    }
+      body: `There's a new pollen report for your cities`,
+    },
   }
 
   const oneWeek = 604800;
 
-  messaging.sendToTopic(cityId, cityMessagePayload, { timeToLive: oneWeek } );
-  messaging.sendToTopic('multiple-cities', multipleMessagePayload, { timeToLive: oneWeek } );
+  await messaging.sendToTopic(cityId, cityMessagePayload, { timeToLive: oneWeek } );
+  await messaging.sendToTopic('multiple-cities', multipleMessagePayload, { timeToLive: oneWeek } );
 });
