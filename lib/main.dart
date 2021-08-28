@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:pollen_track/providers/SelectedCitiesProvider.dart';
-import 'package:pollen_track/types/City.dart';
-import 'package:pollen_track/widgets/NavDrawer.dart';
-import 'widgets/CityListWidget.dart';
+import 'package:pollen_track/providers/selected_cities_provider.dart';
+import 'package:pollen_track/types/city.dart';
+import 'package:pollen_track/widgets/nav_drawer.dart';
+import 'widgets/city_list_widget.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(PollenTrack());
