@@ -58,10 +58,10 @@ CityPollenCount mapToDomain(String cityName, Map<String, dynamic> report) {
       'Overall', PollenLevel.fromString(report['overallRisk']));
 
   final pollenReadings = [
-    new PollenReading('Grass', PollenLevel.fromString(report['grassPollen'])),
-    new PollenReading('Tree', PollenLevel.fromString(report['treePollen'])),
-    new PollenReading('Weed', PollenLevel.fromString(report['weedPollen'])),
-    new PollenReading('Mould', PollenLevel.fromString(report['mouldSpores']))
+    new PollenReading('🌾 Grass', PollenLevel.fromString(report['grassPollen'])),
+    new PollenReading('🌳 Tree', PollenLevel.fromString(report['treePollen'])),
+    new PollenReading('🌱 Weed', PollenLevel.fromString(report['weedPollen'])),
+    new PollenReading('🍄 Mould', PollenLevel.fromString(report['mouldSpores']))
   ];
 
   return new CityPollenCount(

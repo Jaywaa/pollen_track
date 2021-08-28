@@ -47,7 +47,7 @@ class PollenTrack extends StatelessWidget {
                   child: Icon(Icons.edit), 
                   onPressed: () => Provider.of<SelectedCitiesProvider>(context, listen: false).addSelectedCity(CityId.capetown)
                 ), 
-                padding: const EdgeInsets.all(20.0)
+                padding: EdgeInsets.all(20.0)
               ),
             ),
           );
