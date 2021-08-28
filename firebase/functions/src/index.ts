@@ -1,24 +1,45 @@
-import { logger, region, firestore } from 'firebase-functions';
+import { logger, region } from 'firebase-functions';
 import { isAuthorized } from './auth/authorize-request';
 import processPollenReport from './pollen-report/process-pollen-report';
 import * as admin from "firebase-admin";
+import { savePollenData } from './pollen-report/save-pollen-data';
+import sendNotification from './notification/send-notification';
 
 const everyFridayAt9amCAT = '0 8 * * *';
 
-// get firebase ready
+// Get firebase ready
 admin.initializeApp();
 
 const messaging = admin.messaging();
 
+// CRON trigger of fetching and parsing pollen report
 export const scheduledPollenReport = region('europe-west1')
   .pubsub.schedule(everyFridayAt9amCAT)
   .timeZone('UTC')
   .onRun(async _ => {
-  logger.log(`[Executing Scheduled Job] - ${new Date().toISOString()}`);
+
+  logger.log(`[START] - ${new Date().toISOString()}`);
+  const start = new Date().getTime();
   
-  await processPollenReport();
+  const pollenData = await processPollenReport();
+
+  logger.log('Saving pollen data');
+  const isNewReport = await savePollenData(pollenData);
+
+  if (isNewReport) {
+    await sendNotification('New pollen data available.');
+  }
+
+  logger.info(`[END] Elapsed: ${new Date().getTime() - start}ms`);
 });
 
+// Manually trigger fetching and parsing of pollen reporting
+/*
+  Example body: {
+    "secret": string,
+    "save": boolean
+  }
+*/
 export const httpPollenReport = region('europe-west1').https.onRequest(async (request, response) => {
   const authorized = isAuthorized(request);
 
@@ -27,14 +48,28 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
     response.status(401).send('Unauthorized');
     return;
   }
-  
-  logger.info(`[Executing HTTP Job] - ${new Date().toISOString()}`);
+  const start = new Date().getTime();
+  logger.info(`[START] - ${new Date().toISOString()}`);
 
   const pollenData = await processPollenReport();
 
-  response.send(pollenData);
+  if (request.body.save === true) {
+    logger.log('Saving pollen data.');
+    const isNewReport = await savePollenData(pollenData);
+    
+    if (isNewReport) {
+      logger.info('Sending notification');
+      await sendNotification('New pollen data available.');
+    }
+  }
+
+  logger.info(`[END] Elapsed: ${new Date().getTime() - start}ms`);
+
+  response.send({ pollenData });
 });
 
+
+// Send new report notification to devices
 export const reportNotification = region('europe-west1').firestore.document('cities/{cityId}').onUpdate(async snapshot => {
   const cityId = snapshot.after.id;
 

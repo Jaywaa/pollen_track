@@ -3,11 +3,11 @@ import { logger } from 'firebase-functions';
 import { CityPollenLevel } from './domain/types';
 
 export async function savePollenData(cityPollenLevels: CityPollenLevel[]): Promise<boolean> {
-    logger.log('Saving pollen data.');
-
+    logger.info(`Saving ${cityPollenLevels.length} reports.`);
+    
     const mappings = await Promise.all(cityPollenLevels.map(addIfNotExists));
 
-    return mappings.some(x => x === true);
+    return mappings.some(added => added === true);
 }
 
 async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<boolean> {

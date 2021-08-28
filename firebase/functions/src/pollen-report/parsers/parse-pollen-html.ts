@@ -2,7 +2,7 @@ import { logger } from 'firebase-functions';
 import { load } from 'cheerio';
 import { City, CityPollenLevel, RiskLevel } from '../domain/types';
 
-const pollenLevelMap: { [K: string]: string } = {
+const colorToPollenLevelMap: { [K: string]: string } = {
     'grey': 'no_data',
     'green': 'very_low',
     'yellow': 'low',
@@ -27,57 +27,54 @@ function parseReportDate(selector: cheerio.Selector): string {
 }
 
 export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> {
-    logger.info('Parsing pollen HTML');
-
-    const selector = load(html);
+    const $ = load(html);
 
     // const report date
-    const reportDate = parseReportDate(selector);
+    const reportDate = parseReportDate($);
 
     logger.info('Report date:', reportDate);
 
     // Extract the city rows from the table. [row, ...]
     const cityRows =
-        selector('#wpv-view-layout-300 > div > div > div')
+        $('.row')
             .toArray()
-            .slice(2);
-            
+            .slice(3);
+
+    logger.debug(`Found ${cityRows.length} city rows.`);
+    
     // Pulls out the city and pollen classnames for each city. [[city, overall, tree, grass, weed, mould], ...]
-    const cityPollenLevelsArray = cityRows.map(rowElement => {
-        const row = selector(rowElement);
-        const nodes = row.find('.col-xs-2 > *').toArray();
-
-        return nodes.map(node => {
-            const column = selector(node);
-            const outerHtml = selector.html(column);
-
-            // city name
-            if (outerHtml.includes('h5')) {
-                const city = column.html();
-
-                if (!city) {
-                    logger.warn('No city found in <h5> tag.');
-                    return 'unknown_city';
-                }
-
-                return city;
-            }
-
-            // pollen column
-            const pollenLevel = column.attr('class')?.replace('pollen-', '');
-
-            if (!pollenLevel) {
-                logger.warn('Failed to parse pollen level.');
-                return 'unknown';
-            }
-
-            return pollenLevelMap[pollenLevel];
-        });
-    });
+    const cityPollenLevelsArray = cityRows.map(row => parseCityPollenCount($, row));
 
     const cityPollenLevels = mapArrayToType(reportDate, cityPollenLevelsArray);
 
+    logger.debug('Parsed city pollen levels:', cityPollenLevels);
     return cityPollenLevels;
+}
+
+function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element): string[] {
+    const row = $(rowElement);
+    const nodes = row.find('.col-xs-2 > *').toArray();
+
+    const cityName = $(nodes[1]).text() ?? 'unknown_city';
+    if (cityName === 'unknown_city') {
+        logger.warn('No city found in row:', row.html());
+    }
+
+    const pollenLevels = nodes.slice(2).map(node => {
+        const cell = $(node);
+
+        // pollen node
+        const color = cell.attr('class')?.replace('pollen-', '');
+
+        if (!color) {
+            logger.warn('Failed to parse pollen level color. Node:', cell.html());
+            return 'unknown';
+        }
+
+        return colorToPollenLevelMap[color];
+    });
+
+    return [cityName, ...pollenLevels];
 }
 
 // [[city, overall, tree, grass, weed, mould], ...]

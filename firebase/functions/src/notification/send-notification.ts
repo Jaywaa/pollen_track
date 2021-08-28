@@ -10,7 +10,6 @@ export default async function sendNotification(message?: string) {
             return;
         }
     
-        logger.info('Executing notification webhook');
         await fetch(webhookUrl, { method: 'POST', body: JSON.stringify({ value1: message }) });
     }
     catch (e) {
