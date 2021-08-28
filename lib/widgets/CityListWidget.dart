@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pollen_track/services/FetchPollenCounts.dart';
+import 'package:pollen_track/services/firebase/FetchPollenCounts.dart';
 import 'package:pollen_track/types/CityPollenCount.dart';
 
 class CityListWidget extends StatefulWidget {

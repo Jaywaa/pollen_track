@@ -2,16 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pollen_track/types/CityPollenCount.dart';
 import 'package:pollen_track/types/PollenLevel.dart';
 import 'package:pollen_track/types/PollenReading.dart';
-import 'http/PollenCountHttpService.dart';
-import 'parsers/PollenCountParser.dart';
-
-Future<List<CityPollenCount>> fetchPollenCounts() async {
-  print('Fetching pollen HTML.');
-  var html = await PollenCountHttpService.getPollenCountHtml();
-
-  print('Parsing pollen HTML.');
-  return (await PollenCountHTMLParser.parseCityPollenCounts(html)).toList();
-}
 
 Future<List<CityPollenCount>> fetchRecentPollenCountsForAllCities() async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -21,35 +11,36 @@ Future<List<CityPollenCount>> fetchRecentPollenCountsForAllCities() async {
   List<CityPollenCount> cityPollenCounts = [];
   for (var citySnapshot in citySnapshots.docs) {
     final cityId = citySnapshot.id;
-    final reportDate = citySnapshot.get('latestReportDate');
-    print('getting report for city $cityId and reportdate $reportDate');
-    cityPollenCounts.add(await getReportForCity(cityId, reportDate));
+    final cityName = citySnapshot['cityName'];
+    final reportDateString = citySnapshot.get('latestReportDate');
+    print('getting report for city $cityId and reportdate $reportDateString');
+    cityPollenCounts.add(await getReportForCity(cityId, cityName, reportDateString));
   }
 
   return cityPollenCounts;
 }
 
 Future<CityPollenCount> getReportForCity(
-    String cityId, Timestamp reportDate) async {
+    String cityId, String cityName, String reportDateString) async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final report = await firestore
       .collection('reports')
-      .where('reportDate', isEqualTo: reportDate.toDate())
+      .where('reportDate', isEqualTo: reportDateString)
       .where('cityId', isEqualTo: cityId)
       .limit(1)
       .get();
 
   if (report.docs.isEmpty) {
-    print('No report found for $cityId - ${reportDate.toDate()}');
+    print('No report found for $cityId - $reportDateString');
   } else if (report.docs.length > 1) {
-    print('Multiple reports found for $cityId - ${reportDate.toDate()}');
+    print('Multiple reports found for $cityId - $reportDateString');
   }
 
-  return mapToDomain(report.docs.first.data());
+  return mapToDomain(cityName, report.docs.first.data());
 }
 
-CityPollenCount mapToDomain(Map<String, dynamic> report) {
+CityPollenCount mapToDomain(String cityName, Map<String, dynamic> report) {
   final overallReading = new PollenReading(
       'Overall', PollenLevel.fromString(report['overallRisk']));
 
@@ -61,5 +52,5 @@ CityPollenCount mapToDomain(Map<String, dynamic> report) {
   ];
 
   return new CityPollenCount(
-      report['cityName'], overallReading, pollenReadings);
+      cityName, overallReading, pollenReadings);
 }

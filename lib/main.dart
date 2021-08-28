@@ -22,7 +22,7 @@ class PollenTrack extends StatelessWidget {
           print('[Initialized]');
 
           return MaterialApp(
-            theme: ThemeData(primarySwatch: Colors.deepOrange),
+            theme: ThemeData(primarySwatch: Colors.lightGreen),
             title: 'Pollen Track',
             home: Scaffold(
               drawer: NavDrawer(),
@@ -32,6 +32,7 @@ class PollenTrack extends StatelessWidget {
               body: Center(
                 child: CityListWidget(),
               ),
+              floatingActionButton: FloatingActionButton(child: Icon(Icons.add), onPressed: () => print('pressed +'),),
             ),
           );
         });
