@@ -46,16 +46,16 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
 
     logger.debug('Parsed city pollen levels:', cityPollenLevels);
     
-    return cityPollenLevels;
+    return cityPollenLevels.filter(x => x.cityName !== undefined);
 }
 
-function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element, reportDate: string) {
+function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element, reportDate: string): CityPollenLevel {
     const row = $(rowElement);
     const nodes = row.find('.col-xs-2 > *').toArray();
 
-    const cityName = $(nodes[1]).text() ?? 'unknown_city';
-    if (cityName === 'unknown_city') {
-        logger.warn('No city found in row:', row.html());
+    const cityName = $(nodes[1]).text();
+    if (!cityName) {
+        logger.error('No city name found in row:', row.html());
     }
 
     const pollenLevels = nodes.slice(2).map(node => {
@@ -69,17 +69,23 @@ function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element, repo
             return 'unknown';
         }
 
-        return colorToPollenLevelMap[color];
+        const pollenLevel = colorToPollenLevelMap[color] ?? 'no_data';
+
+        if (pollenLevel === 'no_data') {
+            logger.error(`Failed to convert color '${color}' to one of ${Object.values(colorToPollenLevelMap)}`);
+        }
+
+        return pollenLevel ?? 'unknown';
     });
 
     return {
         cityName: cityName as City,
         description: '',
         reportDate,
-        overallRisk: pollenLevels[1] as RiskLevel,
-        treePollen: pollenLevels[2] as RiskLevel,
-        grassPollen: pollenLevels[3] as RiskLevel,
-        weedPollen: pollenLevels[4] as RiskLevel,
-        mouldSpores: pollenLevels[5] as RiskLevel,
+        overallRisk: pollenLevels[0] as RiskLevel,
+        treePollen: pollenLevels[1] as RiskLevel,
+        grassPollen: pollenLevels[2] as RiskLevel,
+        weedPollen: pollenLevels[3] as RiskLevel,
+        mouldSpores: pollenLevels[4] as RiskLevel,
     };
 }
