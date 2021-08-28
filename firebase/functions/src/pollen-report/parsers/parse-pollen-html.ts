@@ -42,16 +42,14 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
 
     logger.debug(`Found ${cityRows.length} city rows.`);
     
-    // Pulls out the city and pollen classnames for each city. [[city, overall, tree, grass, weed, mould], ...]
-    const cityPollenLevelsArray = cityRows.map(row => parseCityPollenCount($, row));
-
-    const cityPollenLevels = mapArrayToType(reportDate, cityPollenLevelsArray);
+    const cityPollenLevels = cityRows.map(row => parseCityPollenCount($, row, reportDate));
 
     logger.debug('Parsed city pollen levels:', cityPollenLevels);
+    
     return cityPollenLevels;
 }
 
-function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element): string[] {
+function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element, reportDate: string) {
     const row = $(rowElement);
     const nodes = row.find('.col-xs-2 > *').toArray();
 
@@ -74,21 +72,14 @@ function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element): str
         return colorToPollenLevelMap[color];
     });
 
-    return [cityName, ...pollenLevels];
-}
-
-// [[city, overall, tree, grass, weed, mould], ...]
-function mapArrayToType(reportDate: string, cityPollenLevels: string[][]): CityPollenLevel[] {
-    return cityPollenLevels.map(cityPollenLevel => (
-        {
-            cityName: cityPollenLevel[0] as City,
-            reportDate,
-            description: '',
-            overallRisk: cityPollenLevel[1] as RiskLevel,
-            treePollen: cityPollenLevel[2] as RiskLevel,
-            grassPollen: cityPollenLevel[3] as RiskLevel,
-            weedPollen: cityPollenLevel[4] as RiskLevel,
-            mouldSpores: cityPollenLevel[5] as RiskLevel,
-        })
-    );
+    return {
+        cityName: cityName as City,
+        description: '',
+        reportDate,
+        overallRisk: pollenLevels[1] as RiskLevel,
+        treePollen: pollenLevels[2] as RiskLevel,
+        grassPollen: pollenLevels[3] as RiskLevel,
+        weedPollen: pollenLevels[4] as RiskLevel,
+        mouldSpores: pollenLevels[5] as RiskLevel,
+    };
 }
