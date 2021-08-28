@@ -1,43 +1,56 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pollen_track/types/City.dart';
 import 'package:pollen_track/types/CityPollenCount.dart';
 import 'package:pollen_track/types/PollenLevel.dart';
 import 'package:pollen_track/types/PollenReading.dart';
 
-Future<List<CityPollenCount>> fetchRecentPollenCountsForAllCities() async {
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final citySnapshots = await firestore.collection('cities').get();
-
-  List<CityPollenCount> cityPollenCounts = [];
-  for (var citySnapshot in citySnapshots.docs) {
-    final cityId = citySnapshot.id;
-    final cityName = citySnapshot['cityName'];
-    final reportDateString = citySnapshot.get('latestReportDate');
-    print('getting report for city $cityId and reportdate $reportDateString');
-    cityPollenCounts.add(await getReportForCity(cityId, cityName, reportDateString));
+Future<List<CityPollenCount>> getReportsForCities(List<CityId> cityIds) async {
+  if (cityIds.length == 0) {
+    return [];
   }
 
-  return cityPollenCounts;
+  print('fetching reports for $cityIds');
+
+  List<CityPollenCount> cityPollenCounts = [];
+
+  for (final id in cityIds) {
+    cityPollenCounts.add(await getReportForCity(id));
+  }
+
+  return Future.wait(cityIds.map(getReportForCity));
 }
 
-Future<CityPollenCount> getReportForCity(
-    String cityId, String cityName, String reportDateString) async {
+Future<CityPollenCount> getReportForCity(CityId cityId) async {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  final report = await firestore
+  // Dart stringifies enums as 'City.capetown'
+  final cityIdString = cityId.toString().split('.').last;
+  
+  final citySnapshot = await firestore
+    .collection('cities')
+    .doc(cityIdString)
+    .get();
+
+  final latestReportDate = citySnapshot.get('latestReportDate');
+
+  final reportQuery = await firestore
       .collection('reports')
-      .where('reportDate', isEqualTo: reportDateString)
-      .where('cityId', isEqualTo: cityId)
+      .where('reportDate', isEqualTo: latestReportDate)
+      .where('cityId', isEqualTo: cityIdString)
       .limit(1)
       .get();
 
-  if (report.docs.isEmpty) {
-    print('No report found for $cityId - $reportDateString');
-  } else if (report.docs.length > 1) {
-    print('Multiple reports found for $cityId - $reportDateString');
+  if (reportQuery.docs.isEmpty) {
+    print('No report found for $cityId - $latestReportDate');
+  } else if (reportQuery.docs.length > 1) {
+    print('Multiple reports found for $cityId - $latestReportDate');
   }
 
-  return mapToDomain(cityName, report.docs.first.data());
+  final report = reportQuery.docs.first.data();
+  final cityName = citySnapshot.get('cityName');
+
+  return mapToDomain(cityName, report);
 }
 
 CityPollenCount mapToDomain(String cityName, Map<String, dynamic> report) {

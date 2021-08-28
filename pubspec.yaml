@@ -27,6 +27,7 @@ dependencies:
   cloud_firestore: ^0.14.3
   cloud_functions: ^0.7.1
   shared_preferences: ^2.0.7
+  provider: ^6.0.0
   flutter:
     sdk: flutter
 

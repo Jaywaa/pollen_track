@@ -1,33 +1,36 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pollen_track/providers/SelectedCitiesProvider.dart';
 import 'package:pollen_track/services/firebase/FetchPollenCounts.dart';
+import 'package:pollen_track/types/City.dart';
 import 'package:pollen_track/types/CityPollenCount.dart';
+import 'package:provider/provider.dart';
 
-class CityListWidget extends StatefulWidget {
-  @override
-  _CityListWidgetState createState() => _CityListWidgetState();
-}
-
-class _CityListWidgetState extends State<CityListWidget> {
-  Widget _buildCities() {
+class CityListWidget extends StatelessWidget {  
+  Widget _buildCities(List<CityId> cityIds) {
     return FutureBuilder<List<CityPollenCount>>(
-        future: fetchRecentPollenCountsForAllCities(),
+        future: getReportsForCities(cityIds),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
 
           print('Data loaded');
-          snapshot.data.map((e) => print(e.cityName));
+          final cities = snapshot.data;
+
+          if (cities.length == 0) {
+            return Center(child: Text('Tap anywhere to add a city'));
+          }
+          
           return ReorderableListView(
-              children: snapshot.data.map(_buildRow).toList(),
+              children: snapshot.data.map(_buildCard).toList(),
               onReorder: (oldIndex, newIndex) {
                 print('old: $oldIndex, new: $newIndex');
               });
         });
   }
 
-  Widget _buildRow(CityPollenCount city) {
+  Widget _buildCard(CityPollenCount city) {
     return Card(
       key: Key(city.cityName),
       child: Column(children: [
@@ -51,12 +54,14 @@ class _CityListWidgetState extends State<CityListWidget> {
             .toList()
       ]),
     );
-    // trailing: (Icon(Icons.circle, color: city.overallRisk.pollenLevel.color)),
   }
 
   @override
   Widget build(BuildContext context) {
-    print('Building cities.');
-    return _buildCities();
+    
+    final cityIds = Provider.of<SelectedCitiesProvider>(context, listen: true).getSelectedCities();
+    print('Building cities $cityIds');
+
+    return _buildCities(cityIds);
   }
 }
