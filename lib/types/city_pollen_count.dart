@@ -1,14 +1,12 @@
+import 'city.dart';
 import 'pollen_reading.dart';
 
 class CityPollenCount {
-  String cityName;
+  final CityId cityId;
+  final String cityName;
   String detail;
-  PollenReading overallRisk;
-  List<PollenReading> pollenReadings;
+  final PollenReading overallRisk;
+  final List<PollenReading> pollenReadings;
 
-  CityPollenCount(this.cityName, this.overallRisk, this.pollenReadings);
-
-  // addReading()
-
-  // addDetail()
+  CityPollenCount(this.cityId, this.cityName, this.overallRisk, this.pollenReadings);
 }

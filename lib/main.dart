@@ -1,24 +1,22 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pollen_track/providers/cities_provider.dart';
 import 'package:pollen_track/providers/selected_cities_provider.dart';
-import 'package:pollen_track/types/city.dart';
-import 'package:pollen_track/widgets/nav_drawer.dart';
-import 'widgets/city_list_widget.dart';
+import 'package:pollen_track/services/firebase/pollen_report_repository.dart';
+import 'package:pollen_track/widgets/pages/city_list.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(PollenTrack());
 
 class PollenTrack extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
-    // Create the initialization Future outside of `build`:
-    final Future<FirebaseApp> _initialization = Firebase.initializeApp();
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(
-          value: SelectedCitiesProvider(),
-        )
+        ChangeNotifierProvider.value(value: SelectedCitiesProvider()),
+        Provider.value(value: PollenReportProvider(new PollenReportRepository()))
       ],
       child: FutureBuilder(
         future: _initialization,
@@ -34,22 +32,7 @@ class PollenTrack extends StatelessWidget {
           return MaterialApp(
             theme: ThemeData(primarySwatch: Colors.lightGreen),
             title: 'Pollen Track',
-            home: Scaffold(
-              drawer: NavDrawer(),
-              appBar: AppBar(
-                title: Text('Pollen Track'),
-              ),
-              body: Center(
-                child: CityListWidget(),
-              ),
-              floatingActionButton: Padding(
-                child: FloatingActionButton(
-                  child: Icon(Icons.edit), 
-                  onPressed: () => Provider.of<SelectedCitiesProvider>(context, listen: false).addSelectedCity(CityId.capetown)
-                ), 
-                padding: EdgeInsets.all(20.0)
-              ),
-            ),
+            home: CityListPage(),
           );
         })
     );

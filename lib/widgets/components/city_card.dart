@@ -1,34 +1,25 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:pollen_track/providers/selected_cities_provider.dart';
-import 'package:pollen_track/services/firebase/pollen_report_repository.dart';
+import 'package:pollen_track/providers/cities_provider.dart';
 import 'package:pollen_track/types/city.dart';
 import 'package:pollen_track/types/city_pollen_count.dart';
 import 'package:provider/provider.dart';
 
-class CityListWidget extends StatelessWidget {
-    @override
-  Widget build(BuildContext context) {
-    
-    final cityIds = Provider.of<SelectedCitiesProvider>(context, listen: true).getSelectedCities();
-    print('Building cities $cityIds');
-    
-    if (cityIds.length == 0) {
-      return Center(child: Text('Tap anywhere to add a city'));
-    }
-    
-    return ReorderableListView(
-        children: cityIds.map(_buildCard).toList(),
-        onReorder: (oldIndex, newIndex) {
-          print('old: $oldIndex, new: $newIndex');
-        });
-        
-  }
+class CityCard extends StatelessWidget {
+  const CityCard({
+    Key key,
+    @required this.cityId,
+  }) : super(key: key);
 
-  Widget _buildCard(CityId cityId) {
+  final CityId cityId;
+
+  @override
+  Widget build(BuildContext context) {
+    final fetchReportFuture = Provider.of<PollenReportProvider>(context, listen: false).fetchReportForCity(cityId);
+
     return FutureBuilder<CityPollenCount>(
         key: Key(cityId.toString()),
-        future: getReportForCity(cityId),
+        future: fetchReportFuture,
         builder: (context, snapshot) {
           
           if (!snapshot.hasData) {

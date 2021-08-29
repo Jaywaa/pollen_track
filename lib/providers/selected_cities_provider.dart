@@ -3,30 +3,46 @@ import 'package:pollen_track/services/storage/city_storage.dart';
 import 'package:pollen_track/types/city.dart';
 
 class SelectedCitiesProvider extends ChangeNotifier {
-  List<CityId> _cities;
+  List<CityId> _selectedCityIds;
 
   SelectedCitiesProvider() {
+    _selectedCityIds = List.empty();
     _init();
   }
 
   _init() async {
-    _cities = await fetchSavedCityIds();
-    print('set saved cities in provider to: $_cities');
+    _selectedCityIds = await getSavedCityIds();
+    print('set saved cities in provider to: $_selectedCityIds');
   }
 
-  List<CityId> getSelectedCities() {
-    return _cities;
+  List<CityId> getSelectedCityIds() {
+    return _selectedCityIds;
   }
 
   void addSelectedCity(CityId cityId) {
-    if (_cities.contains(cityId)) {
+    if (_selectedCityIds.contains(cityId)) {
+      print('Attempted to add $cityId but it was in state: $_selectedCityIds');
       return;
     }
 
-    _cities.add(cityId);
+    _selectedCityIds.add(cityId);
 
     // save to preferences too
     addSavedCity(cityId);
+
+    notifyListeners();
+  }
+
+  void removeSelectedCity(CityId cityId) {
+    if (!_selectedCityIds.contains(cityId)) {
+      print('Attempted to remove $cityId but it was not in state: $_selectedCityIds');
+      return;
+    }
+
+    _selectedCityIds.remove(cityId);
+
+    // remove from preferences too
+    removeSavedCity(cityId);
 
     notifyListeners();
   }
