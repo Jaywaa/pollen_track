@@ -1,5 +1,3 @@
-import 'package:pollen_track/types/pollen_level.dart';
-
 enum CityId { 
   capetown,
   bloemfontein,
@@ -8,21 +6,6 @@ enum CityId {
   pretoria,
   johannesburg,
   kimberley
-}
-
-extension Strings on CityId {
-  /// Excludes the enum type name and period from the final string.
-  String toSimpleString() {
-    return this.toString().split('.').last;
-  }
-}
-
-extension Enums on String {
-  /// Can convert either format: 'MyEnum.myvalue' or 'myvalue'
-  T convertToEnum<T>(Iterable<T> values) {
-    return values.firstWhere((type) => type.toString().split(".").last == this || type.toString() == this,
-      orElse: () => null);
-  }
 }
 
 class City {

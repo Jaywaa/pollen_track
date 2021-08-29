@@ -3,6 +3,8 @@ import 'package:pollen_track/types/city.dart';
 import 'package:pollen_track/types/city_pollen_count.dart';
 import 'package:pollen_track/types/pollen_level.dart';
 import 'package:pollen_track/types/pollen_reading.dart';
+import 'package:pollen_track/extensions/city_extensions.dart';
+import 'package:pollen_track/extensions/string_extensions.dart';
 
 abstract class IPollenReportRepository {
   Future<CityPollenCount> fetchReportForCity(CityId cityId);

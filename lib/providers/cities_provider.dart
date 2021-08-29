@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:pollen_track/services/firebase/pollen_report_repository.dart';
 import 'package:pollen_track/types/city.dart';
 import 'package:pollen_track/types/city_pollen_count.dart';

@@ -11,7 +11,7 @@ class SelectedCitiesProvider extends ChangeNotifier {
   }
 
   _init() async {
-    _selectedCityIds = await getSavedCityIds();
+    _selectedCityIds = await readSavedCityIds();
     print('set saved cities in provider to: $_selectedCityIds');
   }
 
@@ -28,7 +28,7 @@ class SelectedCitiesProvider extends ChangeNotifier {
     _selectedCityIds.add(cityId);
 
     // save to preferences too
-    addSavedCity(cityId);
+    saveSelectedCity(cityId);
 
     notifyListeners();
   }

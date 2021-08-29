@@ -33,15 +33,14 @@ class CitySelectPage extends StatelessWidget {
   Widget _cityListItem(BuildContext context, City city) {
     final selectedCitiesProvider = Provider.of<SelectedCitiesProvider>(context, listen: true);
 
-    return ListTile(
+    return CheckboxListTile(
+      controlAffinity: ListTileControlAffinity.leading,
       title: Text(city.name),
-      trailing: Checkbox(
-        value: selectedCitiesProvider.getSelectedCityIds().contains(city.id), 
+      value: selectedCitiesProvider.getSelectedCityIds().contains(city.id), 
         onChanged: (selected) => 
           selected 
             ? selectedCitiesProvider.addSelectedCity(city.id) 
             : selectedCitiesProvider.removeSelectedCity(city.id)
-      )
     );
   }
 }
