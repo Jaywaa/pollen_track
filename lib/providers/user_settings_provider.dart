@@ -1,29 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:pollen_track/services/storage/user_settings_storage.dart';
 import 'package:pollen_track/types/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSettingsProvider extends ChangeNotifier {
-  UserTheme _userTheme;
+  bool _darkMode;
 
   UserSettingsProvider() {
     _init();
   }
 
   void _init() async {
-    _userTheme = await readSavedUserTheme();
+    final preferences = await SharedPreferences.getInstance();
+    _darkMode = preferences.getBool(SettingsKey.DarkMode);
 
     notifyListeners();
   }
 
-  UserTheme getUserTheme() {
-    return _userTheme;
+  bool isDarkMode() {
+    return _darkMode;
   }
 
-  void setUserTheme(UserTheme theme) {
-    _userTheme = theme;
+  void setDarkMode(bool isDarkMode) async {
+    final preferences = await SharedPreferences.getInstance();
+    preferences.setBool(SettingsKey.DarkMode, isDarkMode);
 
-    saveUserTheme(theme);
-
+    _darkMode = isDarkMode;
     notifyListeners();
   }
 }

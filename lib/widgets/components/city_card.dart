@@ -49,7 +49,6 @@ class CityCard extends StatelessWidget {
                         subtitle: Text(reading.pollenLevel.name),
                         trailing: Icon(Icons.circle, color: reading.pollenLevel.color)
                         )
-
                       )
                   .toList()
             ]),

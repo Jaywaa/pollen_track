@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:pollen_track/providers/selected_cities_provider.dart';
+import 'package:pollen_track/providers/user_settings_provider.dart';
 import 'package:pollen_track/types/city.dart';
 import 'package:pollen_track/widgets/components/city_card.dart';
 import 'package:pollen_track/widgets/nav_drawer.dart';
-import 'package:pollen_track/widgets/pages/city_select.dart';
+import 'package:pollen_track/widgets/pages/city_select_page.dart';
 import 'package:provider/provider.dart';
 
 class CityListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedCityIds = Provider.of<SelectedCitiesProvider>(context, listen: true).getSelectedCityIds();
+    final isDarkMode = Provider.of<UserSettingsProvider>(context, listen: true).isDarkMode();
 
     return Scaffold(
       drawer: NavDrawer(),
@@ -20,7 +22,7 @@ class CityListPage extends StatelessWidget {
       body: selectedCityIds.isNotEmpty 
           ? CityListWidget(selectedCityIds) 
           : TextButton(
-              style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.black)),
+              style: ButtonStyle(foregroundColor: isDarkMode ? MaterialStateProperty.all(Colors.white) : MaterialStateProperty.all(Colors.black)),
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => CitySelectPage()),

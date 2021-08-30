@@ -1,40 +1,30 @@
 import 'package:flutter/material.dart';
-import 'package:pollen_track/types/settings.dart';
 
 class PollenTrackTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-        primarySwatch: Colors.green, scaffoldBackgroundColor: Colors.white);
+      primarySwatch: Colors.green,
+    );
   }
 
   static ThemeData get darkTheme {
-    return ThemeData();
+    return ThemeData.dark().copyWith(
+      primaryColor: Colors.green,
+      toggleableActiveColor: Colors.green,
+      floatingActionButtonTheme:
+        ThemeData.dark().floatingActionButtonTheme.copyWith(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white
+        )
+
+    );
   }
 
-  static _getSystemTheme(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
-
-    switch (brightness) {
-      case Brightness.dark:
-        return darkTheme;
-      case Brightness.light:
-        return lightTheme;
+  static ThemeData getTheme(bool isDarkTheme) {
+    if (isDarkTheme) {
+      return darkTheme;
     }
 
-    print('[getTheme] Failed to get brightness from platform, defaulting to light.');
     return lightTheme;
-  }
-
-  static ThemeData getTheme(BuildContext context, UserTheme userTheme) {
-      switch (userTheme) {
-        case UserTheme.default_light:
-          return lightTheme;
-        case UserTheme.default_dark:
-          return darkTheme;
-        case UserTheme.system:
-        default:
-          print('[getTheme] Using system theme');
-          return _getSystemTheme(context);
-      }
   }
 }

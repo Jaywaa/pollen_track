@@ -1,5 +1,3 @@
-enum UserTheme {
-  default_light,
-  default_dark,
-  system
+class SettingsKey {
+  static const DarkMode = 'dark_mode';
 }
