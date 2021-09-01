@@ -43,7 +43,7 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
     
     const cityPollenLevels = cityRows.map(row => ({ 
         ...parseCityPollenCount($, row),
-        reportDate: reportDate.toISOString().split('T')[0] 
+        reportDate: reportDate.toISOString().split('T')[0],
     }));
 
     return cityPollenLevels.filter(x => x.cityName !== undefined);
