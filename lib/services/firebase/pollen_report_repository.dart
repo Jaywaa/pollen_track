@@ -72,8 +72,6 @@ class PollenReportRepository implements IPollenReportRepository {
           '🍄 Mould', PollenLevel.fromString(report['mouldSpores']))
     ];
 
-
-
-    return new CityPollenCount(cityId, cityName, overallReading, pollenReadings);
+    return new CityPollenCount(cityId, cityName, overallReading, pollenReadings, report['description']);
   }
 }

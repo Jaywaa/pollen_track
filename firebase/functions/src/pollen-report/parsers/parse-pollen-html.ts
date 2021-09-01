@@ -12,7 +12,9 @@ const colorToPollenLevelMap: { [K: string]: string } = {
 };
 
 export function parseReportDate(html: string): Date {
-    const reportDateMatch = html.match(/Report Date:\s([A-Za-z0-9 ]+)/);
+    const $ = load(html);
+    const reportHeading = $('h3').text();
+    const reportDateMatch = reportHeading.match(/Report Date:\s([A-Za-z0-9 ]+)/);
 
     if (!reportDateMatch) {
         throw new Error(`[${parseReportDate.name}] Failed to parse report date. HTML: ${html}`);
