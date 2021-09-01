@@ -48,6 +48,7 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
     response.status(401).send('Unauthorized');
     return;
   }
+
   const start = new Date().getTime();
   logger.info(`[START] - ${new Date().toISOString()}`);
 
