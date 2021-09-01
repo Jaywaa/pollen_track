@@ -28,6 +28,7 @@ dependencies:
   cloud_functions: ^0.7.1
   shared_preferences: ^2.0.7
   provider: ^6.0.0
+  expandable: ^5.0.1
   flutter:
     sdk: flutter
 

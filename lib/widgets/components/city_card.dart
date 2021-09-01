@@ -1,4 +1,4 @@
-
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:pollen_track/providers/cities_provider.dart';
 import 'package:pollen_track/types/city.dart';
@@ -15,19 +15,25 @@ class CityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fetchReportFuture = Provider.of<PollenReportProvider>(context, listen: false).fetchReportForCity(cityId);
+    final fetchReportFuture =
+        Provider.of<PollenReportProvider>(context, listen: false)
+            .fetchReportForCity(cityId);
 
     return FutureBuilder<CityPollenCount>(
         key: Key(cityId.toString()),
         future: fetchReportFuture,
         builder: (context, snapshot) {
-          
           if (!snapshot.hasData) {
-            return Card(child: Center(child: Padding(child: CircularProgressIndicator(), padding: EdgeInsets.all(100.0))), margin: EdgeInsets.all(10));
+            return Card(
+                child: Center(
+                    child: Padding(
+                        child: CircularProgressIndicator(),
+                        padding: EdgeInsets.all(100.0))),
+                margin: EdgeInsets.all(10));
           }
 
           final city = snapshot.data;
-    
+
           return Card(
             key: Key(cityId.toString()),
             margin: EdgeInsets.all(10),
@@ -45,12 +51,25 @@ class CityCard extends StatelessWidget {
               ),
               ...city.pollenReadings
                   .map((reading) => ListTile(
-                        title: Text(reading.type),
-                        subtitle: Text(reading.pollenLevel.name),
-                        trailing: Icon(Icons.circle, color: reading.pollenLevel.color)
-                        )
-                      )
-                  .toList()
+                      title: Text(reading.type),
+                      subtitle: Text(reading.pollenLevel.name),
+                      trailing:
+                          Icon(Icons.circle, color: reading.pollenLevel.color)))
+                  .toList(),
+              Divider(),
+              Theme(
+                  // make divider transparent to avoid duplicate with one above
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    title: Row(
+                        children: [Icon(Icons.info_outline), Text(' Details')]),
+                    children: [
+                      Padding(
+                          child: Text(city.description),
+                          padding: EdgeInsets.all(10))
+                    ],
+                  ))
             ]),
           );
         });

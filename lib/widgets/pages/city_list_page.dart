@@ -58,12 +58,11 @@ class CityListWidget extends StatelessWidget {
     
     print('Building cities $selectedCityIds');
 
-    if (selectedCityIds.length == 1) {
-      print('building a single city');
-      return SingleCityWidget(selectedCityIds.first);
-    }
+    // if (selectedCityIds.length == 1) {
+    //   print('building a single city');
+    //   return SingleCityWidget(selectedCityIds.first);
+    // }
     
-    print('building multiple cities');
     return ReorderableListView(
         children: selectedCityIds.map((id) => CityCard(key: Key(id.toString()), cityId: id)).toList(),
         onReorder: (oldIndex, newIndex) {
@@ -73,31 +72,30 @@ class CityListWidget extends StatelessWidget {
   }
 }
 
-class SingleCityWidget extends StatelessWidget {
-  SingleCityWidget(this.cityId);
+// class SingleCityWidget extends StatelessWidget {
+//   SingleCityWidget(this.cityId);
 
-  final CityId cityId;
+//   final CityId cityId;
 
-  @override
-  Widget build(BuildContext context) {
-    final fetchReportFuture = Provider.of<PollenReportProvider>(context, listen: false).fetchReportForCity(cityId);
+//   @override
+//   Widget build(BuildContext context) {
+//     final fetchReportFuture = Provider.of<PollenReportProvider>(context, listen: false).fetchReportForCity(cityId);
 
-    return FutureBuilder<CityPollenCount>(
-        future: fetchReportFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
+//     return FutureBuilder<CityPollenCount>(
+//         future: fetchReportFuture,
+//         builder: (context, snapshot) {
+//           if (!snapshot.hasData) {
+//             return Center(child: CircularProgressIndicator());
+//           }
 
-          final city = snapshot.data;
+//           final city = snapshot.data;
 
-          print('description: ${city.description}');
+//           print('description: ${city.description}');
 
-          return Column(children: [
-            CityCard(cityId: cityId),
-            Text(city.description)
-          ]);
-        });
-  }
+//           return Column(children: [
+//             CityCard(cityId: cityId)
+//           ]);
+//         });
+//   }
 
-}
+// }
