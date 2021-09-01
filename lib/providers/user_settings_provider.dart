@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSettingsProvider extends ChangeNotifier {
   bool _darkMode;
+  bool _notificationsEnabled;
 
   UserSettingsProvider() {
     _init();
@@ -11,7 +12,9 @@ class UserSettingsProvider extends ChangeNotifier {
 
   void _init() async {
     final preferences = await SharedPreferences.getInstance();
-    _darkMode = preferences.getBool(SettingsKey.DarkMode);
+    
+    _darkMode = preferences.getBool(SettingsKey.DarkMode) ?? false;
+    _notificationsEnabled = preferences.getBool(SettingsKey.NotificationsEnabled) ?? true;
 
     notifyListeners();
   }
@@ -20,11 +23,23 @@ class UserSettingsProvider extends ChangeNotifier {
     return _darkMode;
   }
 
-  void setDarkMode(bool isDarkMode) async {
-    final preferences = await SharedPreferences.getInstance();
-    preferences.setBool(SettingsKey.DarkMode, isDarkMode);
+  bool notificationsEnabled() {
+    return _notificationsEnabled;
+  }
 
+  void setDarkMode(bool isDarkMode) async {
     _darkMode = isDarkMode;
     notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    preferences.setBool(SettingsKey.DarkMode, isDarkMode);
+  }
+
+  void setNotificationsEnabled(bool notificationsEnabled) async {
+    _notificationsEnabled = notificationsEnabled;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    preferences.setBool(SettingsKey.NotificationsEnabled, notificationsEnabled);
   }
 }

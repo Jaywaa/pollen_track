@@ -8,24 +8,24 @@ class NavDrawer extends StatelessWidget {
 
     final userSettingsProvider = Provider.of<UserSettingsProvider>(context, listen: false);
     final isDarkMode = userSettingsProvider.isDarkMode();
+    final notificationsEnabled = userSettingsProvider.notificationsEnabled();
 
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          SwitchListTile(value: isDarkMode, title: Text('Dark Mode'), onChanged: userSettingsProvider.setDarkMode ),
-          // ListTile(
-          //   enabled: false,
-          //   leading: Icon(Icons.settings),
-          //   title: Text('Settings'),
-          //   onTap: () => {Navigator.of(context).pop()},
-          // ),
-          ListTile(
-            enabled: false,
-            leading: Icon(Icons.border_color),
-            title: Text('Feedback'),
-            onTap: () => {Navigator.of(context).pop()},
-          )
+          SwitchListTile(
+            value: isDarkMode, 
+            title: ListTile(leading: Icon(isDarkMode ? Icons.dark_mode : Icons.light_mode), 
+            title: Text('Dark Mode')), onChanged: userSettingsProvider.setDarkMode,
+            contentPadding: EdgeInsets.zero,
+          ),
+          SwitchListTile(
+            value: notificationsEnabled, 
+            title: ListTile(leading: Icon(Icons.notifications), 
+            title: Text('Notifications')), onChanged: userSettingsProvider.setNotificationsEnabled,
+            contentPadding: EdgeInsets.zero,
+          ),
         ],
       ),
     );
