@@ -70,4 +70,7 @@ dependencies {
 
     // Cloud Functions for Firebase Client SDK
     implementation 'com.google.firebase:firebase-functions'
+
+    // For notifications
+    implementation 'com.google.firebase:firebase-messaging:20.1.0'
 }

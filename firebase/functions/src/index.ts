@@ -71,10 +71,11 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
 
 
 // Send new report notification to devices
+// This gets executed for each city that is updated
 export const reportNotification = region('europe-west1').firestore.document('cities/{cityId}').onUpdate(async snapshot => {
   const cityId = snapshot.after.id;
-
-  logger.log(`[Executing Report Notification] - ${new Date().toISOString()}`);
+  
+  logger.log(`[Executing Report Notification] - city: ${cityId} - ${new Date().toISOString()}`);
 
   const cityMessagePayload: admin.messaging.MessagingPayload = {
     notification: {
@@ -83,15 +84,9 @@ export const reportNotification = region('europe-west1').firestore.document('cit
     },
   }
 
-  const multipleMessagePayload: admin.messaging.MessagingPayload = {
-    notification: {
-      title: 'New Pollen Readings',
-      body: `There's a new pollen report for your cities`,
-    },
-  }
-
   const oneWeek = 604800;
 
-  await messaging.sendToTopic(cityId, cityMessagePayload, { timeToLive: oneWeek } );
-  await messaging.sendToTopic('multiple-cities', multipleMessagePayload, { timeToLive: oneWeek } );
+  await messaging.sendToTopic('new-report', cityMessagePayload, { timeToLive: oneWeek } );
+  // await messaging.sendToTopic(cityId, cityMessagePayload, { timeToLive: oneWeek } );
+  // await messaging.sendToTopic('multiple-cities', multipleMessagePayload, { timeToLive: oneWeek } );
 });

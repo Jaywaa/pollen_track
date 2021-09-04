@@ -23,12 +23,12 @@ environment:
 dependencies:
   http: ^0.12.2
   html: ^0.14.0+4
-  firebase_core: ^0.5.2
-  cloud_firestore: ^0.14.3
-  cloud_functions: ^0.7.1
+  firebase_core: ^1.6.0
+  cloud_firestore: ^2.5.1
   shared_preferences: ^2.0.7
   provider: ^6.0.0
   expandable: ^5.0.1
+  firebase_messaging: ^10.0.6
   flutter:
     sdk: flutter
 

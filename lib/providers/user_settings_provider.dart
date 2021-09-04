@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pollen_track/types/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,5 +42,6 @@ class UserSettingsProvider extends ChangeNotifier {
 
     final preferences = await SharedPreferences.getInstance();
     preferences.setBool(SettingsKey.NotificationsEnabled, notificationsEnabled);
+    FirebaseMessaging.instance.unsubscribeFromTopic('reports');
   }
 }

@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pollen_track/providers/cities_provider.dart';
 import 'package:pollen_track/providers/selected_cities_provider.dart';
@@ -42,10 +43,18 @@ class PollenTrack extends StatelessWidget {
 class PollenTrackMaterialAppWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final isDarkTheme = Provider.of<UserSettingsProvider>(context, listen: true).isDarkMode();
+    final userSettingsProvider = Provider.of<UserSettingsProvider>(context, listen: true);
+    final isDarkMode = userSettingsProvider.isDarkMode();
+    final notificationsEnabled = userSettingsProvider.notificationsEnabled();
+
+    if (notificationsEnabled) {
+      print('subscribing to notifications');
+      FirebaseMessaging.instance.getToken().then((token) => print('token: $token'));
+      FirebaseMessaging.instance.subscribeToTopic('reports');
+    } else { print('notifications disabled. did not subscribe.'); }
 
     return MaterialApp(
-        theme: PollenTrackTheme.getTheme(isDarkTheme),
+        theme: PollenTrackTheme.getTheme(isDarkMode),
         title: 'Pollen Track',
         home: SafeArea(child: CityListPage())
       );
