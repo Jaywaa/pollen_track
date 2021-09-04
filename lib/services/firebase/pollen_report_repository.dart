@@ -22,22 +22,10 @@ class PollenReportRepository implements IPollenReportRepository {
     final citySnapshot =
         await firestore.collection('cities').doc(cityIdString).get();
 
-    final latestReportDate = citySnapshot.get('latestReportDate');
+    final DocumentReference latestReport = citySnapshot.get('latestReport');
 
-    final reportQuery = await firestore
-        .collection('reports')
-        .where('reportDate', isEqualTo: latestReportDate)
-        .where('cityId', isEqualTo: cityIdString)
-        .limit(1)
-        .get();
-
-    if (reportQuery.docs.isEmpty) {
-      print('No report found for $cityId - $latestReportDate');
-    } else if (reportQuery.docs.length > 1) {
-      print('Multiple reports found for $cityId - $latestReportDate');
-    }
-
-    final report = reportQuery.docs.first.data();
+    final report = await latestReport.get();
+    
     final cityName = citySnapshot.get('cityName');
 
     return mapToDomain(cityId, cityName, report);
@@ -57,19 +45,19 @@ class PollenReportRepository implements IPollenReportRepository {
         .toList();
   }
 
-  CityPollenCount mapToDomain(CityId cityId, String cityName, Map<String, dynamic> report) {
+  CityPollenCount mapToDomain(CityId cityId, String cityName, DocumentSnapshot<Map<String, dynamic>> report) {
     final overallReading = new PollenReading(
-        'Overall', PollenLevel.fromString(report['overallRisk']));
+        'Overall', PollenLevel.fromString(report.get('overallRisk')));
 
     final pollenReadings = [
       new PollenReading(
-          '🌾 Grass', PollenLevel.fromString(report['grassPollen'])),
+          '🌾 Grass', PollenLevel.fromString(report.get('grassPollen'))),
       new PollenReading(
-          '🌳 Tree', PollenLevel.fromString(report['treePollen'])),
+          '🌳 Tree', PollenLevel.fromString(report.get('treePollen'))),
       new PollenReading(
-          '🌱 Weed', PollenLevel.fromString(report['weedPollen'])),
+          '🌱 Weed', PollenLevel.fromString(report.get('weedPollen'))),
       new PollenReading(
-          '🍄 Mould', PollenLevel.fromString(report['mouldSpores']))
+          '🍄 Mould', PollenLevel.fromString(report.get('mouldSpores')))
     ];
 
     return new CityPollenCount(cityId, cityName, overallReading, pollenReadings, report['description']);
