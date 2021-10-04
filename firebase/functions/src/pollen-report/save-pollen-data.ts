@@ -11,42 +11,46 @@ export async function savePollenData(cityPollenLevels: CityPollenLevel[]): Promi
 }
 
 async function addIfNotExists(cityPollenLevel: CityPollenLevel): Promise<boolean> {
+    try {
+        const cityName = cityPollenLevel.cityName;
+        const cityId = cityPollenLevel.cityName.toLowerCase().replace(/\s/g, '');
 
-    const cityName = cityPollenLevel.cityName;
-    const cityId = cityPollenLevel.cityName.toLowerCase().replace(/\s/g, '');
+        const query = await firestore().collection('reports')
+            .where('reportDate', '==', cityPollenLevel.reportDate)
+            .where('cityId', '==', cityId)
+            .get();
 
-    const query = await firestore().collection('reports')
-        .where('reportDate', '==', cityPollenLevel.reportDate)
-        .where('cityId', '==', cityId)
-        .get();
+        if (!query.empty) {
+            logger.log(`Found existing report for ${cityId} for ${cityPollenLevel.reportDate}`);
+            return false;        
+        }
 
-    if (!query.empty) {
-        logger.log(`Found existing report for ${cityId} for ${cityPollenLevel.reportDate}`);
-        return false;        
+        logger.log(`Adding report for ${cityId} for ${cityPollenLevel.reportDate}`);
+
+        const reportDoc = await firestore()
+            .collection('reports')
+            .add({ 
+                cityId: cityId,
+                reportDate: cityPollenLevel.reportDate,
+                description: cityPollenLevel.description,
+                overallRisk: cityPollenLevel.overallRisk,
+                treePollen: cityPollenLevel.treePollen,
+                grassPollen: cityPollenLevel.grassPollen,
+                weedPollen: cityPollenLevel.weedPollen,
+                mouldSpores: cityPollenLevel.mouldSpores,
+            });
+
+        await firestore().collection('cities')
+            .doc(cityId)
+            .set({
+                cityName: cityName,
+                latestReportDate: cityPollenLevel.reportDate,
+                latestReport: (await reportDoc.get()).ref,
+            });
+        
+        return true;
+    } catch (e) {
+        logger.error(e, { cityPollenLevel });
+        return false;
     }
-
-    logger.log(`Adding report for ${cityId} for ${cityPollenLevel.reportDate}`);
-
-    const reportDoc = await firestore()
-        .collection('reports')
-        .add({ 
-            cityId: cityId,
-            reportDate: cityPollenLevel.reportDate,
-            description: cityPollenLevel.description,
-            overallRisk: cityPollenLevel.overallRisk,
-            treePollen: cityPollenLevel.treePollen,
-            grassPollen: cityPollenLevel.grassPollen,
-            weedPollen: cityPollenLevel.weedPollen,
-            mouldSpores: cityPollenLevel.mouldSpores,
-        });
-
-    await firestore().collection('cities')
-        .doc(cityId)
-        .set({
-            cityName: cityName,
-            latestReportDate: cityPollenLevel.reportDate,
-            latestReport: (await reportDoc.get()).ref,
-        });
-    
-    return true;
 }

@@ -39,9 +39,9 @@ export async function parsePollenHtml(html: string): Promise<CityPollenLevel[]> 
     const cityRows =
         $('.row')
             .toArray()
-            .slice(3);
+            .slice(2, 9);
 
-    logger.debug(`${[parsePollenHtml.name]} Found ${cityRows.length} city rows.`);
+    logger.debug(`[${[parsePollenHtml.name]}] Found ${cityRows.length} city rows.`);
     
     const cityPollenLevels = cityRows.map(row => ({ 
         ...parseCityPollenCount($, row),
@@ -57,7 +57,7 @@ function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element) {
 
     const cityName = $(nodes[1]).text();
     if (!cityName) {
-        logger.error('No city name found in row:', row.html());
+        logger.error(`[${parseCityPollenCount.name}] No city name found in row:`, row.html());
     }
 
     const pollenLevels = nodes.slice(2).map(node => {
@@ -67,18 +67,20 @@ function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element) {
         const color = cell.attr('class')?.replace('pollen-', '');
 
         if (!color) {
-            logger.warn('Failed to parse pollen level color. Node:', cell.html());
+            logger.warn(`[${parseCityPollenCount.name}] Failed to parse pollen level color. Node:`, cell.html());
             return 'unknown';
         }
 
         const pollenLevel = colorToPollenLevelMap[color] ?? 'no_data';
 
         if (pollenLevel === 'no_data') {
-            logger.error(`Failed to convert color '${color}' to one of ${Object.values(colorToPollenLevelMap)}`);
+            logger.error(`[${parseCityPollenCount.name}] Failed to convert color '${color}' to one of ${Object.values(colorToPollenLevelMap)}`);
         }
 
         return pollenLevel ?? 'unknown';
     });
+
+    logger.debug(`[${parseCityPollenCount.name}] Parsed city: ${cityName}`, { pollenLevels });
 
     return {
         cityName: cityName as City,
@@ -93,12 +95,11 @@ function parseCityPollenCount($: cheerio.Root, rowElement: cheerio.Element) {
 export function addPollenDescriptions(cityPollenCounts: CityPollenLevel[], reportHtml: string) {
     const $ = load(reportHtml);
 
-    const rows = $('p').toArray().slice(3);
+    const rows = $('p').toArray();
 
     // iterate through the rows and find the matching city names. When found, add the description (the subsequent 'p' element) to the city pollen count
-    for (let i = 0; i < rows.length; i+=2) {
+    for (let i = 0; i < rows.length; i+=1) {
         const rowText = $(rows[i]).text();
-        logger.debug('testing row:', rowText);
 
         const cityIndex = cityPollenCounts.findIndex(x => x.cityName.toLowerCase() === rowText.toLowerCase());
         if (cityIndex >= 0) {
@@ -106,6 +107,8 @@ export function addPollenDescriptions(cityPollenCounts: CityPollenLevel[], repor
 
             const description = $(rows[i+1]).text();
             cityPollenCounts[cityIndex].description = description;
+        } else {
+            logger.debug(`${[addPollenDescriptions.name]} Skipping row:`, rowText);
         }
     }
 }

@@ -18,7 +18,7 @@ export const scheduledPollenReport = region('europe-west1')
   .timeZone('UTC')
   .onRun(async _ => {
 
-  logger.log(`[START] - ${new Date().toISOString()}`);
+  logger.log(`[START ${scheduledPollenReport.name}] - ${new Date().toISOString()}`);
   const start = new Date().getTime();
   
   const pollenData = await processPollenReport();
@@ -30,7 +30,7 @@ export const scheduledPollenReport = region('europe-west1')
     await sendNotification('New pollen data available.');
   }
 
-  logger.info(`[END] Elapsed: ${new Date().getTime() - start}ms`);
+  logger.info(`[END ${scheduledPollenReport.name}] Elapsed: ${new Date().getTime() - start}ms`);
 });
 
 // Manually trigger fetching and parsing of pollen reporting
@@ -50,7 +50,7 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
   }
 
   const start = new Date().getTime();
-  logger.info(`[START] - ${new Date().toISOString()}`);
+  logger.info(`[START ${httpPollenReport.name}] - ${new Date().toISOString()}`);
 
   const pollenData = await processPollenReport();
 
@@ -64,7 +64,7 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
     }
   }
 
-  logger.info(`[END] Elapsed: ${new Date().getTime() - start}ms`);
+  logger.info(`[END ${httpPollenReport.name}] Elapsed: ${new Date().getTime() - start}ms`);
 
   response.send({ pollenData });
 });
@@ -75,7 +75,7 @@ export const httpPollenReport = region('europe-west1').https.onRequest(async (re
 export const reportNotification = region('europe-west1').firestore.document('cities/{cityId}').onUpdate(async snapshot => {
   const cityId = snapshot.after.id;
   
-  logger.log(`[Executing Report Notification] - city: ${cityId} - ${new Date().toISOString()}`);
+  logger.log(`[${reportNotification.name}] ${cityId} - ${new Date().toISOString()}`);
 
   const cityMessagePayload: admin.messaging.MessagingPayload = {
     notification: {
