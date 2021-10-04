@@ -1,4 +1,4 @@
-package com.example.pollen_track
+package com.jaywaa.pollen_track
 
 import io.flutter.embedding.android.FlutterActivity
 
