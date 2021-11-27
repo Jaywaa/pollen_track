@@ -40,3 +40,6 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 google-services.json
+
+# Built application
+android/app/release/*
