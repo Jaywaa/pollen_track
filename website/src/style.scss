@@ -1,0 +1,50 @@
+html, body {
+  margin: 0;
+  height: 90%;
+  background-color: #f4fbff;
+}
+
+html {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 30px;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 32pt;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.logo {
+  max-width: 250px;
+  max-height: 250px;
+}
+
+.hero {
+  & h1 {
+    margin-bottom: 0;
+  }
+  & p {
+    margin-top: 0;
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
