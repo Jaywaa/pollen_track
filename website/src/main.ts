@@ -1,4 +1,4 @@
-import './style.scss'
+// import './style.scss'
 import { HoverMode, InteractivityDetect, IOptions, RecursivePartial, tsParticles,  } from 'tsparticles';
 import { IParticles } from 'tsparticles/Options/Interfaces/Particles/IParticles';
 
