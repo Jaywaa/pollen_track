@@ -5,7 +5,7 @@ import * as admin from "firebase-admin";
 import { savePollenData } from './pollen-report/save-pollen-data';
 import sendNotification from './notification/send-notification';
 
-const everyFridayAt9amCAT = '0 8 * * *';
+const everyFridayAt9amCAT = '*/20 6-18 * * 5';
 
 // Get firebase ready
 admin.initializeApp();

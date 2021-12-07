@@ -2,7 +2,7 @@ enum CityId {
   capetown,
   bloemfontein,
   durban,
-  portelizabeth,
+  gqeberha,
   pretoria,
   johannesburg,
   kimberley
@@ -20,7 +20,7 @@ Map<CityId, String> cityNameByIdMap = {
   CityId.durban: 'Durban',
   CityId.bloemfontein: 'Bloemfontein',
   CityId.pretoria: 'Pretoria',
-  CityId.portelizabeth: 'Gqeberha',
+  CityId.gqeberha: 'Gqeberha',
   CityId.kimberley: 'Kimberley',
   CityId.johannesburg: 'Johannesburg',
 };
